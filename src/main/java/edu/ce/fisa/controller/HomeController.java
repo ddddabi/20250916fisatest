@@ -10,7 +10,7 @@ public class HomeController {
 
     @GetMapping("/hello")
     public String getHello() {
-        return "Hello GET!";
+        return "Hello GET! - 자동화 테스트";
     }
 
     @PostMapping("/hello")

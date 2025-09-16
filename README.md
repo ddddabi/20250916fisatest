@@ -30,66 +30,78 @@ GitHub ──▶ Jenkins 컨테이너 ──▶ 빌드(JAR 생성)
 ---
 ## 1️⃣ 프로젝트 빌드 (Jenkins)
 
-1. GitHub Push
+**1. GitHub Push**
 
-2. Jenkins Job 생성 (step03_teamArt)
-    - Build Steps → Execute Shell
-      ```
-      chmod +x ./gradlew
-      ./gradlew clean bootJar -x test
-      ```
-  
-    - 빌드 성공 후 JAR 생성 위치
-      ```
+**2. Jenkins Job 생성 (step03_teamArt)**
+
+  - Build Steps → Execute Shell
+    ```
+    chmod +x ./gradlew
+    ./gradlew clean bootJar -x test
+    ```
+
+  - 빌드 성공 후 JAR 생성 위치
+    ```
       /var/jenkins_home/workspace/step03_teamArt/build/libs/step04_gradleBuild-0.0.1-SNAPSHOT.jar
-      ```
+    ```
 
 ## 2️⃣ Bind Mount 방식
 
-1. 호스트 홈 디렉토리에 jar 복사
-    ```
-    docker cp myjenkins:/var/jenkins_home/workspace/step03_teamArt/build/libs/step04_gradleBuild-0.0.1-SNAPSHOT.jar /home/ubuntu/
-    ```
-2. 컨테이너 실행 (호스트 /home/ubuntu ↔ 컨테이너 /app):
-    ```
-      docker run -it --name ubt-bind \
-        -p 8080:8080 \
-        -v /home/ubuntu:/app \
-        ubuntu:20.04 /bin/bash
-    ```
+**1. 호스트 홈 디렉토리에 jar 복사**
 
-3. 컨테이너 내부:
-    ```
-    apt-get update
-    apt-get install -y openjdk-17-jdk
-    cd /app
-    java -jar step04_gradleBuild-0.0.1-SNAPSHOT.jar --server.address=0.0.0.0
-    ```
+  ```
+  docker cp myjenkins:/var/jenkins_home/workspace/step03_teamArt/build/libs/step04_gradleBuild-0.0.1-SNAPSHOT.jar /home/ubuntu/
+  ```
+    
+**2. 컨테이너 실행 (호스트 /home/ubuntu ↔ 컨테이너 /app)**
+
+  ```
+  docker run -it --name ubt-bind \
+    -p 8080:8080 \
+    -v /home/ubuntu:/app \
+    ubuntu:20.04 /bin/bash
+  ```
+
+**3. 컨테이너 내부**
+
+  ```
+  apt-get update
+  apt-get install -y openjdk-17-jdk
+  cd /app
+  java -jar step04_gradleBuild-0.0.1-SNAPSHOT.jar --server.address=0.0.0.0
+  ```
     
 ## 3️⃣ Volume Mount 방식
 
-1. 볼륨 생성:
-    ```
-    docker volume create gradle_vol
-    ```
-2. jar를 볼륨 경로에 복사:
-    ```
-    sudo cp /home/ubuntu/step04_gradleBuild-0.0.1-SNAPSHOT.jar /var/lib/docker/volumes/gradle_vol/_data/
-    ```
-3.컨테이너 실행 (gradle_vol ↔ /app):
-    ```
-    docker run -it --name ubt-vol \
-      -p 9090:9090 \
-      -v gradle_vol:/app \
-      ubuntu:20.04 /bin/bash
-    ```
-4. 컨테이너 내부:
-    ```
-    apt-get update
-    apt-get install -y openjdk-17-jdk
-    cd /app
-    java -jar step04_gradleBuild-0.0.1-SNAPSHOT.jar --server.address=0.0.0.0 --server.port=9090
-    ```
+**1. 볼륨 생성**
+
+  ```
+  docker volume create gradle_vol
+  ```
+    
+**2. jar를 볼륨 경로에 복사**
+
+  ```
+  sudo cp /home/ubuntu/step04_gradleBuild-0.0.1-SNAPSHOT.jar /var/lib/docker/volumes/gradle_vol/_data/
+  ```
+    
+**3. 컨테이너 실행 (gradle_vol ↔ /app)**
+
+  ```
+  docker run -it --name ubt-vol \
+    -p 9090:9090 \
+    -v gradle_vol:/app \
+    ubuntu:20.04 /bin/bash
+  ```
+    
+**4. 컨테이너 내부**
+
+  ```
+  apt-get update
+  apt-get install -y openjdk-17-jdk
+  cd /app
+  java -jar step04_gradleBuild-0.0.1-SNAPSHOT.jar --server.address=0.0.0.0 --server.port=9090
+  ```
     
 ## ✅ 결과
 
